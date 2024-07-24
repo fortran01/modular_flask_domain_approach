@@ -17,7 +17,22 @@ class LoyaltyService:
                  loyalty_account_repo: LoyaltyAccountRepository,
                  product_repo: ProductRepository,
                  transaction_repo: PointTransactionRepository,
-                 category_repo: CategoryRepository):
+                 category_repo: CategoryRepository) -> None:
+        """
+        Initializes the LoyaltyService with required repositories.
+
+        Args:
+            customer_repo (CustomerRepository): Repository for customer
+                operations.
+            loyalty_account_repo (LoyaltyAccountRepository): Repository for
+                loyalty account operations.
+            product_repo (ProductRepository): Repository for product
+                operations.
+            transaction_repo (PointTransactionRepository): Repository for
+                transaction operations.
+            category_repo (CategoryRepository): Repository for category
+                operations.
+        """
         self.customer_repo = customer_repo
         self.loyalty_account_repo = loyalty_account_repo
         self.product_repo = product_repo
@@ -26,6 +41,18 @@ class LoyaltyService:
 
     def process_checkout(self, customer_id: int,
                          product_ids: List[int]) -> Tuple[Dict[str, Any], int]:
+        """
+        Processes the checkout for a customer, calculating
+        loyalty points earned.
+
+        Args:
+            customer_id (int): The ID of the customer.
+            product_ids (List[int]): List of product IDs being purchased.
+
+        Returns:
+            Tuple[Dict[str, Any], int]: A tuple containing the response data
+            and HTTP status code.
+        """
         customer = self.customer_repo.get_by_id(customer_id)
         if not customer:
             return {"error": "Customer not found"}, 404
@@ -53,6 +80,20 @@ class LoyaltyService:
     def _process_products(
         self, loyalty_account: LoyaltyAccount, product_ids: List[int]
     ) -> Tuple[int, List[int], List[int], List[int]]:
+        """
+        Processes each product for checkout, calculating points
+        and handling transactions.
+
+        Args:
+            loyalty_account (LoyaltyAccount): The loyalty account
+            of the customer.
+            product_ids (List[int]): List of product IDs being purchased.
+
+        Returns:
+            Tuple[int, List[int], List[int], List[int]]: A tuple containing
+                total points earned, lists of invalid products,
+                products missing categories, and products missing point rules.
+        """
         total_points_earned = 0
         invalid_products = []
         products_missing_category = []
@@ -81,13 +122,26 @@ class LoyaltyService:
             loyalty_account.add_points(points_earned)
             total_points_earned += points_earned
 
-        return (total_points_earned, invalid_products,
-                products_missing_category, point_earning_rules_missing)
+        return (
+            total_points_earned,
+            invalid_products,
+            products_missing_category,
+            point_earning_rules_missing
+        )
 
     def _create_transaction(
         self, loyalty_account: LoyaltyAccount, product: Product,
         points_earned: int
     ) -> None:
+        """
+        Creates a point transaction for a product purchase.
+
+        Args:
+            loyalty_account (LoyaltyAccount): The loyalty account
+                of the customer.
+            product (Product): The product being purchased.
+            points_earned (int): The points earned from the purchase.
+        """
         transaction = PointTransaction(
             loyalty_account=loyalty_account,
             product=product,

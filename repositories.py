@@ -14,10 +14,29 @@ from datetime import date
 
 
 class CustomerRepository:
+    """
+    Repository for performing database operations on the Customers table.
+    """
+
     def __init__(self, session: Session):
+        """
+        Initializes the CustomerRepository with a database session.
+
+        Args:
+            session (Session): The database session.
+        """
         self.session = session
 
     def get_by_id(self, customer_id: int) -> Optional[Customer]:
+        """
+        Retrieves a customer by their ID.
+
+        Args:
+            customer_id (int): The ID of the customer to retrieve.
+
+        Returns:
+            Optional[Customer]: The retrieved customer or None if not found.
+        """
         customer_model = self.session.query(Customers).get(customer_id)
         if customer_model:
             return Customer(
@@ -29,10 +48,31 @@ class CustomerRepository:
 
 
 class LoyaltyAccountRepository:
+    """
+    Repository for performing database operations on the LoyaltyAccounts table.
+    """
+
     def __init__(self, session: Session):
+        """
+        Initializes the LoyaltyAccountRepository with a database session.
+
+        Args:
+            session (Session): The database session.
+        """
         self.session = session
 
     def get_by_customer_id(self, customer_id: int) -> Optional[LoyaltyAccount]:
+        """
+        Retrieves a loyalty account by customer ID.
+
+        Args:
+            customer_id (int): The ID of the customer whose loyalty account
+            to retrieve.
+
+        Returns:
+            Optional[LoyaltyAccount]: The retrieved loyalty account or None
+            if not found.
+        """
         account_model = self.session.query(LoyaltyAccounts).filter_by(
             customer_id=customer_id).first()
         if account_model:
@@ -49,6 +89,12 @@ class LoyaltyAccountRepository:
         return None
 
     def update(self, loyalty_account: LoyaltyAccount) -> None:
+        """
+        Updates a loyalty account in the database.
+
+        Args:
+            loyalty_account (LoyaltyAccount): The loyalty account to update.
+        """
         account_model = self.session.query(
             LoyaltyAccounts).get(loyalty_account.id)
         if account_model:
@@ -57,10 +103,29 @@ class LoyaltyAccountRepository:
 
 
 class ProductRepository:
+    """
+    Repository for performing database operations on the Products table.
+    """
+
     def __init__(self, session: Session):
+        """
+        Initializes the ProductRepository with a database session.
+
+        Args:
+            session (Session): The database session.
+        """
         self.session = session
 
     def get_by_id(self, product_id: int) -> Optional[Product]:
+        """
+        Retrieves a product by its ID.
+
+        Args:
+            product_id (int): The ID of the product to retrieve.
+
+        Returns:
+            Optional[Product]: The retrieved product or None if not found.
+        """
         product_model = self.session.query(Products).get(product_id)
         if product_model:
             category = Category(product_model.category_id,
@@ -77,10 +142,29 @@ class ProductRepository:
 
 
 class CategoryRepository:
+    """
+    Repository for performing database operations on the Categories table.
+    """
+
     def __init__(self, session: Session):
+        """
+        Initializes the CategoryRepository with a database session.
+
+        Args:
+            session (Session): The database session.
+        """
         self.session = session
 
     def get_by_id(self, category_id: Optional[int]) -> Optional[Category]:
+        """
+        Retrieves a category by its ID.
+
+        Args:
+            category_id (Optional[int]): The ID of the category to retrieve.
+
+        Returns:
+            Optional[Category]: The retrieved category or None if not found.
+        """
         category_model = self.session.query(Categories).get(category_id)
         if category_model:
             category = Category(category_model.id, category_model.name)
@@ -107,10 +191,27 @@ class CategoryRepository:
 
 
 class PointTransactionRepository:
+    """
+    Repository for performing database operations on the
+    PointTransactions table.
+    """
+
     def __init__(self, session: Session):
+        """
+        Initializes the PointTransactionRepository with a database session.
+
+        Args:
+            session (Session): The database session.
+        """
         self.session = session
 
     def create(self, transaction: PointTransaction) -> None:
+        """
+        Creates a new point transaction in the database.
+
+        Args:
+            transaction (PointTransaction): The transaction to create.
+        """
         transaction_model = PointTransactions(
             loyalty_account_id=transaction.loyalty_account.id,
             product_id=transaction.product.id,
@@ -122,11 +223,32 @@ class PointTransactionRepository:
 
 
 class PointEarningRuleRepository:
+    """
+    Repository for performing database operations on the
+    PointEarningRules table.
+    """
+
     def __init__(self, session: Session):
+        """
+        Initializes the PointEarningRuleRepository with a database session.
+
+        Args:
+            session (Session): The database session.
+        """
         self.session = session
 
     def get_active_rule(self, category_id: int,
                         transaction_date: date) -> Optional[PointEarningRule]:
+        """
+        Retrieves the active point earning rule for a category on a given date.
+
+        Args:
+            category_id (int): The ID of the category.
+            transaction_date (date): The date for which the rule is applicable.
+
+        Returns:
+            Optional[PointEarningRule]: The active rule or None if not found.
+        """
         rule_model = self.session.query(PointEarningRules).filter(
             PointEarningRules.category_id == category_id,
             PointEarningRules.start_date <= transaction_date,
