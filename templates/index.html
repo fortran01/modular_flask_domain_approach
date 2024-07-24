@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Customer Loyalty Program</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+</head>
+<body>
+    <h1>Customer Loyalty Program</h1>
+    
+    {% if not logged_in %}
+    <!-- Login Form -->
+    <div id="login-form">
+        <label for="customer-id">Customer ID:</label>
+        <input type="text" id="customer-id" name="customer-id" required>
+        <button onclick="login()">Login</button>
+    </div>
+    <div id="shopping-window" style="display: none;"></div>
+    {% else %}
+    <!-- Shopping Window -->
+    <div id="shopping-window">
+        <h2>Shopping Window</h2>
+        <p>Welcome, Customer ID: {{ customer_id }}</p>
+        <div id="product-list">
+            {% for product in products %}
+            <div class="product">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" width="100" height="100">
+                <h3>{{ product.name }}</h3>
+                <p>Price: ${{ product.price }}</p>
+                <button onclick="addToCart({{ product.id }})">Add to Cart</button>
+            </div>
+            {% endfor %}
+        </div>
+        <button onclick="checkout()">Checkout</button>
+        <button onclick="logout()">Logout</button>
+    </div>
+    {% endif %}
+    
+    {% if logged_in %}
+    <div id="cart">
+        <h2>Your Cart</h2>
+        <ul id="cart-items"></ul>
+    </div>
+    {% endif %}
+
+    <div id="result"></div>
+    <div id="error-messages"></div>
+    
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
